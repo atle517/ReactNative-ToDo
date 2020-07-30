@@ -1,8 +1,35 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { Component, useRef } from 'react';
+import { StyleSheet, Text, View, Animated, TouchableOpacity, Easing } from 'react-native';
+import { Entypo } from '@expo/vector-icons';
 
 
 export class ToDo extends Component {
+    state = {
+        fadeInAnim: new Animated.Value(0),
+        widenAnim: new Animated.Value(0),
+    };
+
+    interpolateWidth = this.state.widenAnim.interpolate({inputRange:[0,1],outputRange:['0%','100%']});
+
+    componentDidMount() {
+        this.fadeIn();
+        this.widen();
+    }
+
+    fadeIn = () => {
+        Animated.timing(this.state.fadeInAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: false
+        }).start();
+    };
+
+    widen = () => {
+        Animated.spring(this.state.widenAnim, {
+            toValue: 1,
+            useNativeDriver: false
+        }).start();
+    };
 
     render() {
 
@@ -13,24 +40,25 @@ export class ToDo extends Component {
         let descStyle = completed ? [styles.component_todo_desc, styles.lined_through] : styles.component_todo_desc;
 
         return (
-            <View>
+            <Animated.View style={{ opacity: this.state.fadeInAnim, width: this.interpolateWidth }}>
+                <TouchableOpacity style={styles.component_todo} onPressIn={() => this.props.setAsCompleted(id)}>
+                    {/* Main component ToDo div */}
+                    <View style={{ flexDirection: "row", }}>
+                        {/* Checkmark */}
+                        <View style={styles.component_todo_checkmark_box} />
+                        {completed ? <Text style={styles.component_todo_checkmark_check}>&#10003;</Text> : <Text />}
 
-                {/* Main component ToDo div */}
-                <TouchableOpacity style={styles.component_todo} onClick={() => this.props.setAsCompleted(id)}>
-                    {/* Checkmark */}
-                    <View style={styles.component_todo_checkmark_box} />
-                    {completed ? <Text style={style.component_todo_checkmark_check}>&#10003;</Text> : <Text />}
+                        {/* Show desc text */}
+                        <Text style={descStyle}>{desc}</Text>
+                    </View>
 
-                    {/* Show desc text */}
-                    <Text adjustsFontSizeToFit style={descStyle}>{desc}</Text>
+                    {/* Delete button */}
+                    <TouchableOpacity style={styles.component_todo_delete_button} onPressIn={() => this.props.remove(id)}>
+                        <Entypo name="cross" size={48} color='rgb(90, 0, 0)' style={{textAlign:'center'}} />
+                    </TouchableOpacity>
+
                 </TouchableOpacity>
-
-                {/* Delete button */}
-                <TouchableOpacity style={styles.component_todo_delete_button} onClick={() => this.props.remove(id)}>
-                    <Text style={{ textAlign:"center", color: "rgb(80, 0, 0)",fontSize: 24, marginTop:'auto', marginBottom:'auto' }}>&#10006;</Text>
-                </TouchableOpacity>
-
-            </View>
+            </Animated.View>
         )
     }
 }
@@ -38,67 +66,84 @@ export class ToDo extends Component {
 const styles = StyleSheet.create({
 
     component_todo: {
-        borderWidth: 1,
-
+        width: '100%',
         height: 75,
 
-        borderRadius: 5,
+        backgroundColor: 'rgba(100,100,100,0.5)',
 
-        elevation: 5,
-        backgroundColor: 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(195,195,195,1) 100%, rgba(78,78,78,1) 100%)',
+        borderColor: 'rgba(75,75,75,0.5)',
+        borderWidth: 1,
+        borderRadius: 5,
 
         marginTop: 5,
         marginRight: 40,
 
-        display: 'flex',
-
         flexDirection: "row",
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
 
     },
     component_todo_checkmark_check: {
-        width: 40,
-        height: 40,
-
         fontSize: 50,
+        color: "#000",
 
-        paddingLeft: 5,
+        left: 5,
+        top: -3,
 
         position: 'absolute'
     },
 
     component_todo_checkmark_box: {
-        "width": 35,
-        "height": 35,
-        "marginTop": "auto",
-        "marginBottom": "auto",
-        "marginLeft": 6,
-        "borderWidth": 1,
-        "borderRadius": 3,
-        "backgroundColor": "linear-gradient(140deg, rgb(235, 235, 235) 0%, rgba(180,180,180,1) 100%)",
-        // "boxShadow": "inset 1px 1px 3px #333"
+
+        width: 35,
+        height: 35,
+        marginTop: "auto",
+        marginBottom: "auto",
+        marginLeft: 6,
+        borderWidth: 1,
+        borderRadius: 3,
+        backgroundColor: "#ccc",
+        borderColor: 'rgba(50,50,50,0.75)',
+
     },
-    "component_todo_desc": {
+
+    component_todo_desc: {
         // "fontSize": 12,
-        "paddingLeft": 10,
-        "marginTop": "auto",
-        "marginBottom": "auto"
+        color: '#000',
+        paddingLeft: 10,
+        marginTop: "auto",
+        marginBottom: "auto"
     },
-    "lined_through": {
-        "textDecorationLine": "line-through"
+
+    lined_through: {
+        textDecorationLine: "line-through",
     },
-    "component_todo_delete_button": {
-        "marginLeft": "auto",
-        "marginRight": 0,
-        "marginTop": -75,
-        "width": 40,
-        "height": 75,
-        "backgroundColor": "linear-gradient(140deg, rgba(255,0,0,1) 0%, rgba(92,0,0,1) 100%)",
-        "fontSize": 32,
-        
-        "display": "flex",
-        "borderWidth": 1,
-        "borderRadius": 5,
-        elevation: 5
+
+    component_todo_delete_button: {
+        width: 40,
+        height: '102.7%',
+        backgroundColor: "rgb(224, 0, 0)",
+
+        borderWidth: 1,
+        borderColor: 'rgba(25,25,25,0.5)',
+        borderTopRightRadius: 5,
+        borderBottomRightRadius: 5,
+
+        marginLeft: 'auto',
+        marginRight: -1,
+        marginTop: -1,
+        marginBottom: 'auto',
+
+        alignItems: 'center',
+        justifyContent: 'center',
+
+
     }
 });
 

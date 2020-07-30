@@ -16,15 +16,12 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '6%',
         backgroundColor: '#333',
-        color: '#fff',
         display: 'flex',
         position: 'relative',
 
         zIndex: 2,
 
-        bottom: 0,
-
-        textAlign: 'center'
+        bottom: 0
     },
 
     text_style: {

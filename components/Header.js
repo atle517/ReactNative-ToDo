@@ -14,9 +14,8 @@ export class Header extends Component {
 const styles = StyleSheet.create({
     fixed_header: {
         width: '100%',
-        height: '9%',
+        height: 82,
         backgroundColor: '#333',
-        color: '#fff',
         display: 'flex',
         position: 'relative',
       
